@@ -68,7 +68,7 @@ def save_file(path, data:pd.DataFrame, type):
     if not os.path.exists(path):
         os.mkdir(path)
     save_path = os.path.join(path, type + '.csv')
-    data.to_csv(save_path)
+    data.to_csv(save_path, index=False)
 
 save_file('output', train_data, 'train')
 save_file('output', test_data, 'test')
