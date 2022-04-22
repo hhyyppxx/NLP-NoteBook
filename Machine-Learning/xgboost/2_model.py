@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 import xgboost as xgb
-from xgboost.sklearn import XGBClassifier
+# from xgboost.sklearn import XGBClassifier
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', 1000)
@@ -24,10 +24,9 @@ print(y_train.shape)
 
 param = {
     'booster': 'gbtree',
-    'nthread': 12,
     'objective': 'rank:pairwise',
     'eval_metric':'auc',
-    'seed':0,
+    'seed':2022,
     'eta': 0.01,
     'gamma':0.1,
     'min_child_weight':1.1,
@@ -42,7 +41,13 @@ param = {
 train_ = xgb.DMatrix(data=x_train, label=y_train)
 eval_ = xgb.DMatrix(data=x_dev, label=y_dev)
 eval_ = [(eval_, 'val')]
-xgb.train(params=param, dtrain=train_, evals=eval_)
-# xgb = XGBClassifier()
-# xgb.fit(x_train, y_train, eval_set=[x_dev, y_dev])
+xgb_model = xgb.train(params=param, dtrain=train_, evals=eval_)
 
+cvresult = xgb.cv(param, train_, num_boost_round=100, nfold=5, metrics='auc', seed=2022,
+                    callbacks=[xgb.callback.print_evaluation(show_stdv=False), xgb.callback.early_stop(50)]
+)
+
+# fig = xgb.to_graphviz(xgb_model, num_trees=1, leaf_node_params={'shape': 'plaintext'})
+# print(fig)
+xgb.plot_importance(xgb_model)
+# print(fig_2)
